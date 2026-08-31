@@ -34,6 +34,15 @@ required.
 - **CV match** (hard filter, ≥70%): the posting must score at least 70%
   against the user's CV for that role on skills/qualifications fit (see
   "CV Matching" below).
+- **Location/visa** (soft filter, not by country): user is based in
+  Jakarta, Indonesia and open to roles anywhere, with higher realistic odds
+  in Indonesia, other Asian countries, and the US (per their US-accredited
+  institution background) than Europe/Australia — this is not used to
+  exclude postings, only as a tiebreaker/priming consideration. The one
+  hard exclusion: if a posting explicitly requires existing work
+  authorization or does not sponsor visas for its country, exclude it. If
+  a posting says nothing about visa/work authorization, include it (benefit
+  of the doubt — sponsorship may still be possible).
 - **Cost constraint**: free sources/tools only, no paid services anywhere
   in the pipeline. Up to 8 distinct sources total (currently using 2).
 
@@ -64,8 +73,11 @@ this iteration; explicitly deferred by the user.
 
 ## CV Matching (Layer 2 — Agent reasoning)
 
-The user provides 3 CVs as PDFs in `reference/` (gitignored, personal
-documents): `cv_consulting.pdf`, `cv_data.pdf`, `cv_business.pdf`.
+The user provided 3 role-tailored CVs as PDFs, stored as extracted plain
+text in `reference/` (gitignored, personal documents): `cv_consulting.txt`,
+`cv_data.txt`, `cv_business.txt`. Text form was chosen over keeping raw
+PDFs so the agent can read them directly on every scheduled run without a
+PDF-parsing step each time; content is unchanged from the source PDFs.
 
 Matching skills/experience to a job description is a judgment call, not a
 deterministic computation — per the WAT principle that probabilistic
@@ -74,8 +86,8 @@ at run time, not a Python tool:
 
 - After dedup (new postings only, to avoid rescoring what's already been
   judged), the agent reads the CV matching the posting's role (Consultant
-  → `cv_consulting.pdf`, Business Analyst → `cv_business.pdf`, Data
-  Analyst → `cv_data.pdf`) and estimates a skills/qualifications match
+  → `cv_consulting.txt`, Business Analyst → `cv_business.txt`, Data
+  Analyst → `cv_data.txt`) and estimates a skills/qualifications match
   percentage against the posting.
 - Only postings scoring ≥70% are kept; the rest are dropped before ever
   reaching the sheet.
