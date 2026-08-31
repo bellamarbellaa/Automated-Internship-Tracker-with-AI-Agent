@@ -27,8 +27,13 @@ required.
 - **Internship requirement** (hard filter): the posting must have
   "internship" or "intern" in its title or job description. Full-time
   postings are excluded even if otherwise matching.
-- **Timing**: Summer 2027 internships, or any 2027 posting that offers a
-  ~3-month full-time internship.
+- **Timing**: Summer 2027 internships, or any 2027 posting that states (or
+  reasonably implies) a full-time internship of 8, 10, or 12 weeks.
+  Postings with no duration info get a lighter-touch judgment call rather
+  than auto-exclusion, since many postings omit exact week counts.
+- **CV match** (hard filter, ≥70%): the posting must score at least 70%
+  against the user's CV for that role on skills/qualifications fit (see
+  "CV Matching" below).
 - **Cost constraint**: free sources/tools only, no paid services anywhere
   in the pipeline. Up to 8 distinct sources total (currently using 2).
 
@@ -57,16 +62,37 @@ Room to add up to 6 more sources later (e.g. Greenhouse/Lever for specific
 target firms) without changing the rest of the pipeline — out of scope for
 this iteration; explicitly deferred by the user.
 
+## CV Matching (Layer 2 — Agent reasoning)
+
+The user provides 3 CVs as PDFs in `reference/` (gitignored, personal
+documents): `cv_consulting.pdf`, `cv_data.pdf`, `cv_business.pdf`.
+
+Matching skills/experience to a job description is a judgment call, not a
+deterministic computation — per the WAT principle that probabilistic
+reasoning belongs at the Agent layer, this is done by the agent (Claude)
+at run time, not a Python tool:
+
+- After dedup (new postings only, to avoid rescoring what's already been
+  judged), the agent reads the CV matching the posting's role (Consultant
+  → `cv_consulting.pdf`, Business Analyst → `cv_business.pdf`, Data
+  Analyst → `cv_data.pdf`) and estimates a skills/qualifications match
+  percentage against the posting.
+- Only postings scoring ≥70% are kept; the rest are dropped before ever
+  reaching the sheet.
+- This avoids needing a paid embeddings/LLM API for scoring — it's part of
+  the same scheduled agent run already happening.
+
 ## Google Sheet — Tracker
 
 One tab, "Internship Tracker", columns:
 
-| Date Found | Title | Company | Location | Source | Posted Date | URL | Status |
-|---|---|---|---|---|---|---|---|
+| Date Found | Title | Company | Location | Source | Posted Date | URL | Match % | Status |
+|---|---|---|---|---|---|---|---|---|
 
 - `tools/update_tracker_sheet.py` reads all existing URLs from the sheet
   into a set, filters incoming normalized postings against it, and appends
-  only genuinely new rows with `Status = New`.
+  only genuinely new rows with `Status = New` — including the `Match %`
+  the agent assigned during CV matching.
 - **Dedup key**: normalized job URL. Fallback if a source provides no
   stable URL: lowercased `company + title + posted_date`.
 - The automation only ever appends rows — it never edits `Status` on
@@ -98,10 +124,16 @@ The agent (Claude, at run time):
 2. Calls `search_adzuna.py` and `search_serpapi_jobs.py`.
 3. Merges normalized results from both, handling either source failing
    gracefully.
-4. Passes merged results to `update_tracker_sheet.py`.
-5. If any new rows were appended, calls `send_digest_email.py` with just
+4. Filters out postings already in the sheet (by URL) using the existing
+   URL set from `update_tracker_sheet.py`, so only genuinely new postings
+   reach CV matching.
+5. For each remaining posting, reads the matching CV and scores it;
+   drops anything below 70%.
+6. Passes the surviving postings (with Match %) to
+   `update_tracker_sheet.py` to append.
+7. If any new rows were appended, calls `send_digest_email.py` with just
    the new rows.
-6. Per the WAT self-improvement loop: if a source's filtering proves too
+8. Per the WAT self-improvement loop: if a source's filtering proves too
    noisy/strict or a recurring failure shows up, the agent updates the
    relevant tool and documents the change in the workflow doc.
 
@@ -126,3 +158,5 @@ first auth and gitignored thereafter.
 - Additional sources beyond Adzuna + SerpAPI (Greenhouse/Lever for named
   target firms) — deferred, room left in the design to add later.
 - Any paid service or API.
+- Automated CV updates/versioning — the 3 CVs are static reference inputs
+  the user maintains manually.
