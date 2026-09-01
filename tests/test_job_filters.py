@@ -139,6 +139,15 @@ def test_requires_completed_degree_penultimate_year_not_excluded():
     ) is False
 
 
+def test_requires_completed_degree_curly_apostrophe_still_matches():
+    # Real scraped text often uses a curly/smart apostrophe (U+2019, '’')
+    # rather than a straight one -- this must not silently fail to match.
+    assert requires_completed_degree(
+        "The ideal candidate will have a successful track record of academic "
+        "excellence, including a bachelor’s degree from a top-tier university."
+    ) is True
+
+
 def test_requires_completed_degree_bare_requirement_with_no_qualifier_excluded():
     # Confirmed direction: "Bachelor's degree ... is required" with no
     # nearby current-student language is now also treated as exclusionary,

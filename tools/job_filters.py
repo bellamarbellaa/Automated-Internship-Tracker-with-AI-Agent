@@ -44,7 +44,11 @@ _DEGREE_COMPLETION_EXCLUSION_PHRASES = [
 # a degree AND a current-student qualifier (the large majority -- "pursuing
 # a degree", "expected graduation", "final year", etc.) are correctly left
 # alone by this rule.
-_DEGREE_MENTION_PATTERN = re.compile(r"bachelor'?s?\s+degree|master'?s?\s+degree")
+# Matches straight (') and curly/smart (') apostrophes -- scraped job
+# descriptions commonly use the curly form, which a plain "'?" would
+# silently fail to match (confirmed against the real McKinsey posting,
+# which uses "bachelor's degree" with a curly apostrophe).
+_DEGREE_MENTION_PATTERN = re.compile(r"bachelor['’]?s?\s+degree|master['’]?s?\s+degree")
 
 _CURRENT_STUDENT_PHRASES = [
     "pursuing",
