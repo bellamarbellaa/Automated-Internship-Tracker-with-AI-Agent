@@ -56,6 +56,24 @@ tracker, and email a digest if anything new was found.
    your own reasoning, not a script. Add the result as `"match_percent"`
    on the posting dict. Drop any posting scoring below 70.
 
+   While reading each full description, also watch for two things the
+   deterministic filters can miss or only partially catch:
+   - **Stale postings.** A posting can carry an explicit start/end date
+     from a past year (e.g. "Expected Start/End Date: October 2020 -
+     December 2020") even though it surfaced in a search for 2027 roles —
+     `matches_duration` only checks week/month counts and the literal
+     phrase "summer 2027", so it won't catch this. Drop postings with an
+     explicit past-year date, regardless of match score.
+   - **Visa/sponsorship language `passes_visa_check` doesn't catch.** The
+     tool-level check runs first and catches most explicit sponsorship
+     exclusions, but phrasing evolves — if you read a full description
+     that clearly states no sponsorship / US-work-authorization-required
+     without saying so in words the filter recognizes, drop the posting
+     yourself and consider adding the new phrasing to
+     `tools/job_filters.py`'s `_VISA_EXCLUSION_PHRASES` (or a regex
+     pattern in `_VISA_EXCLUSION_PATTERNS` if the phrase isn't a
+     contiguous substring) afterward, per the self-improvement loop below.
+
 5. Pipe the surviving postings (as a JSON array, each with `match_percent`
    added) to the tracker sheet tool:
    ```bash
