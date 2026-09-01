@@ -1,9 +1,26 @@
 from tools.job_filters import (
+    apply_indonesia_bonus,
     has_internship_keyword,
     matches_duration,
     passes_visa_check,
     requires_completed_degree,
 )
+
+
+def test_apply_indonesia_bonus_adds_bonus_for_jakarta():
+    assert apply_indonesia_bonus(65, "Jakarta, Indonesia") == 75
+
+
+def test_apply_indonesia_bonus_adds_bonus_for_other_indonesia_city():
+    assert apply_indonesia_bonus(60, "South Jakarta, South Jakarta City, Jakarta, Indonesia") == 70
+
+
+def test_apply_indonesia_bonus_caps_at_100():
+    assert apply_indonesia_bonus(95, "Jakarta, Indonesia") == 100
+
+
+def test_apply_indonesia_bonus_no_change_for_other_locations():
+    assert apply_indonesia_bonus(75, "Singapore") == 75
 
 
 def test_has_internship_keyword_in_title():

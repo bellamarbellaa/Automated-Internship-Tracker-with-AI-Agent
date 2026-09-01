@@ -92,6 +92,21 @@ _CURRENT_STUDENT_PHRASES = [
 ]
 
 
+# Bonus applied to a posting's CV match score when it's Indonesia-located,
+# per user request: they're Jakarta-based and want Indonesia postings
+# weighted higher, applied before the >=70% threshold check so borderline
+# Indonesia postings get a fair chance to qualify, not just better ranking
+# among an already-qualified pool.
+INDONESIA_MATCH_BONUS = 10
+
+
+def apply_indonesia_bonus(match_percent: int, location: str) -> int:
+    text = location.lower()
+    if "indonesia" in text or "jakarta" in text:
+        return min(100, match_percent + INDONESIA_MATCH_BONUS)
+    return match_percent
+
+
 def has_internship_keyword(title: str, description: str) -> bool:
     text = f"{title} {description}".lower()
     return "intern" in text
