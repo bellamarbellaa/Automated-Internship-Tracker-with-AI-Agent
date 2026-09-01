@@ -75,6 +75,30 @@ def test_append_postings_dedups_and_appends_new_only():
     ]
 
 
+def test_append_postings_treats_trailing_slash_and_whitespace_as_duplicate():
+    service = MagicMock()
+    service.spreadsheets().values().get().execute.return_value = {
+        "values": [["https://example.com/existing"]]
+    }
+
+    postings = [
+        {
+            "title": "Data Analyst Intern",
+            "company": "Acme",
+            "location": "Jakarta",
+            "url": "  https://example.com/existing/  ",
+            "posted_date": "2026-08-01",
+            "source": "adzuna",
+            "match_percent": 80,
+        }
+    ]
+
+    appended = append_postings(service, "sheet-123", postings)
+
+    assert appended == []
+    service.spreadsheets().values().append.assert_not_called()
+
+
 def test_append_postings_all_duplicates_skips_api_call():
     service = MagicMock()
     service.spreadsheets().values().get().execute.return_value = {

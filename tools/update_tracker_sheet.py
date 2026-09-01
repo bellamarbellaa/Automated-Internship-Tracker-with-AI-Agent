@@ -7,6 +7,10 @@ URL_COLUMN_RANGE = f"{SHEET_NAME}!G2:G"
 DATA_APPEND_RANGE = f"{SHEET_NAME}!A2:I"
 
 
+def _normalize_url(url: str) -> str:
+    return url.strip().rstrip("/")
+
+
 def get_existing_urls(service, spreadsheet_id: str) -> set[str]:
     result = (
         service.spreadsheets()
@@ -15,7 +19,7 @@ def get_existing_urls(service, spreadsheet_id: str) -> set[str]:
         .execute()
     )
     rows = result.get("values", [])
-    return {row[0] for row in rows if row}
+    return {_normalize_url(row[0]) for row in rows if row}
 
 
 def _build_row(posting: dict) -> list:
@@ -26,7 +30,7 @@ def _build_row(posting: dict) -> list:
         posting["location"],
         posting["source"],
         posting["posted_date"],
-        posting["url"],
+        _normalize_url(posting["url"]),
         posting["match_percent"],
         "New",
     ]
@@ -34,7 +38,7 @@ def _build_row(posting: dict) -> list:
 
 def append_postings(service, spreadsheet_id: str, postings: list[dict]) -> list[dict]:
     existing_urls = get_existing_urls(service, spreadsheet_id)
-    new_postings = [p for p in postings if p["url"] not in existing_urls]
+    new_postings = [p for p in postings if _normalize_url(p["url"]) not in existing_urls]
 
     if not new_postings:
         return []
