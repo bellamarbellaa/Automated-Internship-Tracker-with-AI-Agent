@@ -99,6 +99,44 @@ def test_append_postings_treats_trailing_slash_and_whitespace_as_duplicate():
     service.spreadsheets().values().append.assert_not_called()
 
 
+def test_append_postings_treats_rotating_tracking_param_as_duplicate():
+    # Adzuna's "se" query param rotates on every API call for the same
+    # listing; a real posting's URL differed only in "se" across two live
+    # searches minutes apart. utm_source/utm_medium/utm_campaign are the
+    # same kind of tracking noise and should be ignored too.
+    service = MagicMock()
+    service.spreadsheets().values().get().execute.return_value = {
+        "values": [
+            [
+                "https://www.adzuna.com/land/ad/5856434706"
+                "?se=xkkt87Ol8RGS6e_oRoerSw&utm_medium=api&utm_source=3f03cb9c"
+                "&v=786217345AE0978B2D686EC0E92B3A6F845291EE"
+            ]
+        ]
+    }
+
+    postings = [
+        {
+            "title": "Business Analyst Intern",
+            "company": "Crowe",
+            "location": "Chicago",
+            "url": (
+                "https://www.adzuna.com/land/ad/5856434706"
+                "?se=YNthLLal8RGS6e_oRoerSw&utm_medium=api&utm_source=3f03cb9c"
+                "&v=786217345AE0978B2D686EC0E92B3A6F845291EE"
+            ),
+            "posted_date": "2026-08-26",
+            "source": "adzuna",
+            "match_percent": 75,
+        }
+    ]
+
+    appended = append_postings(service, "sheet-123", postings)
+
+    assert appended == []
+    service.spreadsheets().values().append.assert_not_called()
+
+
 def test_append_postings_all_duplicates_skips_api_call():
     service = MagicMock()
     service.spreadsheets().values().get().execute.return_value = {

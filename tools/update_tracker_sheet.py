@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from tools.google_auth import SHEETS_SCOPE, get_credentials
 
@@ -6,9 +7,24 @@ SHEET_NAME = "Internship Tracker"
 URL_COLUMN_RANGE = f"{SHEET_NAME}!G2:G"
 DATA_APPEND_RANGE = f"{SHEET_NAME}!A2:I"
 
+# Query params known to be per-request tracking noise rather than part of a
+# job's identity. Adzuna's "se" token rotates on every API call for the same
+# job listing (confirmed by comparing two live searches: same URL path and
+# "v" value, different "se") -- without stripping it, the same still-open
+# posting would look "new" every week and get re-appended as a duplicate row.
+_TRACKING_QUERY_PARAMS = {"se", "utm_source", "utm_medium", "utm_campaign"}
+
 
 def _normalize_url(url: str) -> str:
-    return url.strip().rstrip("/")
+    url = url.strip().rstrip("/")
+    parts = urlsplit(url)
+    kept_query = [
+        (k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+        if k not in _TRACKING_QUERY_PARAMS
+    ]
+    return urlunsplit(
+        (parts.scheme, parts.netloc, parts.path, urlencode(kept_query), parts.fragment)
+    )
 
 
 def get_existing_urls(service, spreadsheet_id: str) -> set[str]:
