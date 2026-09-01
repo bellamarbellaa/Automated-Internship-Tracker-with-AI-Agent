@@ -17,8 +17,8 @@ tracker, and email a digest if anything new was found.
 
 1. For each role in ["Business Analyst", "Data Analyst", "Consultant"], run:
    ```bash
-   python tools/search_adzuna.py --role "<role>"
-   python tools/search_serpapi_jobs.py --role "<role>"
+   python -m tools.search_adzuna --role "<role>"
+   python -m tools.search_serpapi_jobs --role "<role>"
    ```
    Each prints a JSON object: `{"source": ..., "success": ..., "error": ...,
    "postings": [...]}`. Record `success`/`error` per source for the digest
@@ -59,7 +59,7 @@ tracker, and email a digest if anything new was found.
 5. Pipe the surviving postings (as a JSON array, each with `match_percent`
    added) to the tracker sheet tool:
    ```bash
-   echo '<json array>' | python tools/update_tracker_sheet.py
+   echo '<json array>' | python -m tools.update_tracker_sheet
    ```
    This prints back the JSON array of postings that were actually appended
    (it dedups again internally in case of a race between steps 3 and 5).
@@ -67,7 +67,7 @@ tracker, and email a digest if anything new was found.
 6. If the array from step 5 is non-empty, send the digest:
    ```bash
    echo '{"postings": <appended array>, "source_status": <status dict from step 1>}' \
-     | python tools/send_digest_email.py
+     | python -m tools.send_digest_email
    ```
    If the array is empty, skip this step — no email on a quiet week.
 
