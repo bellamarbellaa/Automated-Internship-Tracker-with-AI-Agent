@@ -82,8 +82,14 @@ a digest if anything new was found.
 
    Estimate a skills/qualifications match percentage (0-100) between the
    CV and the posting's title + description. This is a judgment call — use
-   your own reasoning, not a script. Add the result as `"match_percent"`
-   on the posting dict. Drop any posting scoring below 70.
+   your own reasoning, not a script. Then apply
+   `tools.job_filters.apply_indonesia_bonus(match_percent, location)` to
+   the raw score — it adds +10 (capped at 100) for Indonesia-located
+   postings, applied *before* the threshold check below so a borderline
+   Indonesia posting gets a fair chance to qualify, not just better
+   ranking among an already-qualified pool. Add the boosted result as
+   `"match_percent"` on the posting dict. Drop any posting scoring below
+   70 after the bonus.
 
    While reading each full description, also watch for things the
    deterministic filters can miss or only partially catch:

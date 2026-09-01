@@ -33,7 +33,11 @@ required.
   than auto-exclusion, since many postings omit exact week counts.
 - **CV match** (hard filter, ≥70%): the posting must score at least 70%
   against the user's CV for that role on skills/qualifications fit (see
-  "CV Matching" below).
+  "CV Matching" below). Indonesia-located postings get a +10 bonus to this
+  score (capped at 100, `tools.job_filters.apply_indonesia_bonus`) before
+  the threshold check, per explicit user request — Jakarta/Indonesia
+  postings are weighted higher, not just tie-broken, so a borderline one
+  can cross the 70% line that it otherwise wouldn't.
 - **Location/visa** (soft filter, not by country): user is based in
   Jakarta, Indonesia and open to roles anywhere, with higher realistic odds
   in Indonesia, other Asian countries, and the US (per their US-accredited
