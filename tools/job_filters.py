@@ -15,12 +15,17 @@ _VISA_EXCLUSION_PHRASES = [
     "legally authorized to work in the united states",
     "without the need for employer sponsorship",
     "cannot offer employment to",
+    "do not accept candidates who require sponsorship",
 ]
 
-# Handles phrasing where "sponsorship" and "is not available" are separated
-# by a few words, e.g. "sponsorship for work authorization is not available".
+# Handles phrasing where the negation and "sponsorship" are separated by a
+# few words, rather than forming one of the fixed phrases above.
 _VISA_EXCLUSION_PATTERNS = [
+    # "sponsorship for work authorization is not available"
     re.compile(r"sponsorship[^.]{0,60}is not available"),
+    # "nor are we able to provide sponsorship opportunities"
+    re.compile(r"not able to provide sponsorship"),
+    re.compile(r"nor are we able to provide sponsorship"),
 ]
 
 # Explicit "already completed/hold/graduated" phrasing is always excluded

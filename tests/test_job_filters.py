@@ -90,6 +90,14 @@ def test_passes_visa_check_cannot_offer_employment_excluded():
     ) is False
 
 
+def test_passes_visa_check_do_not_accept_candidates_excluded():
+    assert passes_visa_check(
+        "NOTE: We currently do not accept candidates who require "
+        "sponsorship, nor are we able to provide sponsorship "
+        "opportunities to candidates."
+    ) is False
+
+
 def test_requires_completed_degree_explicit_already_completed_excluded():
     assert requires_completed_degree(
         "Candidates must have completed a Bachelor's degree prior to starting."
