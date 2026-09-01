@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.marbella.internship-tracker</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/marbellaelpantja/Documents/Claude Code Agentic Workflow/Internship Search Automation/scripts/run_weekly.sh</string>
+    </array>
+
+    <!--
+      Fixed calendar dates only -- Sep 7, 14, 21 2026 at 8:00 AM local
+      (Asia/Jakarta, confirmed as the Mac's system timezone) -- exactly 3
+      more runs, not an open-ended weekly recurrence. This is a portfolio
+      project meant to demonstrate the automation, not run indefinitely.
+      After 2026-09-21 this job has nothing left scheduled; see README
+      note below for removal.
+    -->
+    <key>StartCalendarInterval</key>
+    <array>
+        <dict>
+            <key>Year</key><integer>2026</integer>
+            <key>Month</key><integer>9</integer>
+            <key>Day</key><integer>7</integer>
+            <key>Hour</key><integer>8</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Year</key><integer>2026</integer>
+            <key>Month</key><integer>9</integer>
+            <key>Day</key><integer>14</integer>
+            <key>Hour</key><integer>8</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+        <dict>
+            <key>Year</key><integer>2026</integer>
+            <key>Month</key><integer>9</integer>
+            <key>Day</key><integer>21</integer>
+            <key>Hour</key><integer>8</integer>
+            <key>Minute</key><integer>0</integer>
+        </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/Users/marbellaelpantja/Documents/Claude Code Agentic Workflow/Internship Search Automation/logs/launchd_stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/marbellaelpantja/Documents/Claude Code Agentic Workflow/Internship Search Automation/logs/launchd_stderr.log</string>
+</dict>
+</plist>

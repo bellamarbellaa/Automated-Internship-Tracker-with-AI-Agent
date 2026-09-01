@@ -3,5 +3,6 @@ credentials.json
 token.json
 .tmp/
 reference/
+logs/
 __pycache__/
 *.pyc
