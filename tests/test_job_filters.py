@@ -1,4 +1,9 @@
-from tools.job_filters import has_internship_keyword, matches_duration, passes_visa_check
+from tools.job_filters import (
+    has_internship_keyword,
+    matches_duration,
+    passes_visa_check,
+    requires_completed_degree,
+)
 
 
 def test_has_internship_keyword_in_title():
@@ -82,4 +87,38 @@ def test_passes_visa_check_cannot_offer_employment_excluded():
     assert passes_visa_check(
         "We cannot offer employment to F-1 visa holders who require "
         "employer sponsorship in the future."
+    ) is False
+
+
+def test_requires_completed_degree_explicit_already_completed_excluded():
+    assert requires_completed_degree(
+        "Candidates must have completed a Bachelor's degree prior to starting."
+    ) is True
+
+
+def test_requires_completed_degree_already_hold_excluded():
+    assert requires_completed_degree(
+        "Applicants must already hold a Bachelor's degree in a related field."
+    ) is True
+
+
+def test_requires_completed_degree_already_graduated_excluded():
+    assert requires_completed_degree(
+        "You must have already graduated with a relevant degree to apply."
+    ) is True
+
+
+def test_requires_completed_degree_generic_requirement_not_excluded():
+    # A bare "degree required" is common, generic boilerplate that doesn't
+    # by itself mean the candidate must have already earned it -- this
+    # must NOT be treated as exclusionary, or it would over-block postings
+    # that are otherwise fine for a current student.
+    assert requires_completed_degree(
+        "A Bachelor's degree in finance, accounting, or a related field is required."
+    ) is False
+
+
+def test_requires_completed_degree_pursuing_not_excluded():
+    assert requires_completed_degree(
+        "Currently pursuing a Bachelor's degree with an expected graduation in 2028."
     ) is False

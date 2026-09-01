@@ -23,6 +23,23 @@ _VISA_EXCLUSION_PATTERNS = [
     re.compile(r"sponsorship[^.]{0,60}is not available"),
 ]
 
+# Deliberately narrow: only explicit "already completed/hold/graduated"
+# phrasing triggers this. A bare "Bachelor's degree required" is NOT
+# included -- that phrasing is extremely common boilerplate on postings
+# that are otherwise fine for a current student (e.g. "a Bachelor's degree
+# in finance is required" said nothing about already holding it), so
+# keying on it alone would over-exclude far more than it correctly blocks.
+_DEGREE_COMPLETION_EXCLUSION_PHRASES = [
+    "must have completed",
+    "must hold a completed",
+    "already completed a bachelor",
+    "already have a bachelor",
+    "already hold a bachelor",
+    "must have already graduated",
+    "must have obtained a degree",
+    "must already possess a bachelor",
+]
+
 
 def has_internship_keyword(title: str, description: str) -> bool:
     text = f"{title} {description}".lower()
@@ -52,3 +69,8 @@ def passes_visa_check(description: str) -> bool:
     if any(pattern.search(text) for pattern in _VISA_EXCLUSION_PATTERNS):
         return False
     return True
+
+
+def requires_completed_degree(description: str) -> bool:
+    text = description.lower()
+    return any(phrase in text for phrase in _DEGREE_COMPLETION_EXCLUSION_PHRASES)

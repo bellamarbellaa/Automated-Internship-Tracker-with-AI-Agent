@@ -2,8 +2,13 @@ import os
 
 import requests
 
-from tools.job_filters import has_internship_keyword, matches_duration, passes_visa_check
-from tools.role_queries import ROLE_QUERIES
+from tools.job_filters import (
+    has_internship_keyword,
+    matches_duration,
+    passes_visa_check,
+    requires_completed_degree,
+)
+from tools.role_queries import INDONESIA_QUERIES, ROLE_QUERIES
 
 SERPAPI_BASE_URL = "https://serpapi.com/search.json"
 
@@ -15,7 +20,7 @@ SERPAPI_BASE_URL = "https://serpapi.com/search.json"
 
 def search_postings(role: str) -> dict:
     api_key = os.environ.get("SERPAPI_API_KEY")
-    queries = ROLE_QUERIES.get(role, [role])
+    queries = ROLE_QUERIES.get(role, [role]) + INDONESIA_QUERIES.get(role, [])
 
     postings = []
     seen_urls = set()
@@ -38,6 +43,8 @@ def search_postings(role: str) -> dict:
                 if not matches_duration(description):
                     continue
                 if not passes_visa_check(description):
+                    continue
+                if requires_completed_degree(description):
                     continue
                 apply_options = item.get("apply_options") or []
                 url = apply_options[0]["link"] if apply_options else ""

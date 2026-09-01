@@ -2,7 +2,12 @@ import os
 
 import requests
 
-from tools.job_filters import has_internship_keyword, matches_duration, passes_visa_check
+from tools.job_filters import (
+    has_internship_keyword,
+    matches_duration,
+    passes_visa_check,
+    requires_completed_degree,
+)
 from tools.role_queries import ROLE_QUERIES
 
 ADZUNA_BASE_URL = "https://api.adzuna.com/v1/api/jobs"
@@ -42,6 +47,8 @@ def search_postings(role: str, countries: list[str] | None = None) -> dict:
                     if not matches_duration(description):
                         continue
                     if not passes_visa_check(description):
+                        continue
+                    if requires_completed_degree(description):
                         continue
                     url_value = item.get("redirect_url", "")
                     if url_value in seen_urls:
