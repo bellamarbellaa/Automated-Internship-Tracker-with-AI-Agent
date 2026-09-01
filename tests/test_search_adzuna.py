@@ -56,6 +56,7 @@ def test_search_postings_filters_and_normalizes(monkeypatch):
     assert posting["posted_date"] == "2026-08-01"
     assert posting["source"] == "adzuna"
     assert posting["role"] == "Business Analyst"
+    assert posting["description"] == "An 8-week internship, Summer 2027 start."
 
 
 def test_search_postings_handles_request_failure(monkeypatch):

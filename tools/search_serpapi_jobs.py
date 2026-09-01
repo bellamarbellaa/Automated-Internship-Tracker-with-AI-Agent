@@ -7,11 +7,10 @@ from tools.role_queries import ROLE_QUERIES
 
 SERPAPI_BASE_URL = "https://serpapi.com/search.json"
 
-# NOTE: Field names below (jobs_results, title, company_name, location,
-# description, apply_options[0].link, detected_extensions.posted_at) follow
-# SerpAPI's documented Google Jobs schema but are not yet verified against a
-# live response (no API key available in this environment). Confirm field
-# mapping during the project's live end-to-end run and adjust if any differ.
+# Field names below (jobs_results, title, company_name, location,
+# description, apply_options[0].link, detected_extensions.posted_at) were
+# verified against a live SerpAPI Google Jobs response during the project's
+# end-to-end run (2026-09-01).
 
 
 def search_postings(role: str) -> dict:
@@ -55,6 +54,7 @@ def search_postings(role: str) -> dict:
                         "posted_date": posted_date,
                         "source": "serpapi",
                         "role": role,
+                        "description": description,
                     }
                 )
         return {"source": "serpapi", "success": True, "error": None, "postings": postings}

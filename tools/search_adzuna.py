@@ -7,9 +7,8 @@ from tools.role_queries import ROLE_QUERIES
 
 ADZUNA_BASE_URL = "https://api.adzuna.com/v1/api/jobs"
 
-# NOTE: Not yet verified against a live Adzuna response (no API keys available
-# in this environment). Confirm coverage/field mapping during the project's
-# live end-to-end run and adjust if any country 404s or fields differ.
+# Verified against a live Adzuna response during the project's end-to-end run
+# (2026-09-01): all five countries return results with this field mapping.
 DEFAULT_COUNTRIES = ["us", "sg", "in", "gb", "au"]
 
 
@@ -57,6 +56,7 @@ def search_postings(role: str, countries: list[str] | None = None) -> dict:
                             "posted_date": item.get("created", "")[:10],
                             "source": "adzuna",
                             "role": role,
+                            "description": description,
                         }
                     )
         return {"source": "adzuna", "success": True, "error": None, "postings": postings}
