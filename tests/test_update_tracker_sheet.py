@@ -137,6 +137,42 @@ def test_append_postings_treats_rotating_tracking_param_as_duplicate():
     service.spreadsheets().values().append.assert_not_called()
 
 
+def test_append_postings_dedups_within_the_incoming_batch_itself():
+    # Two entries for the same job can both surface in one search (e.g. via
+    # two different query variants), each with a different rotating
+    # tracking token. Neither is in the sheet yet, so a check against only
+    # the sheet's existing URLs would let both through as separate rows.
+    service = MagicMock()
+    service.spreadsheets().values().get().execute.return_value = {"values": []}
+
+    postings = [
+        {
+            "title": "Strategy Consultant Intern 2027",
+            "company": "IBM",
+            "location": "Chicago",
+            "url": "https://www.adzuna.com/land/ad/5842069002?se=aaa&v=SAMEJOB",
+            "posted_date": "2026-08-01",
+            "source": "adzuna",
+            "match_percent": 88,
+        },
+        {
+            "title": "Strategy Consultant Intern 2027",
+            "company": "IBM",
+            "location": "Chicago",
+            "url": "https://www.adzuna.com/land/ad/5842069002?se=bbb&v=SAMEJOB",
+            "posted_date": "2026-08-01",
+            "source": "adzuna",
+            "match_percent": 88,
+        },
+    ]
+
+    appended = append_postings(service, "sheet-123", postings)
+
+    assert len(appended) == 1
+    append_call = service.spreadsheets().values().append.call_args
+    assert len(append_call.kwargs["body"]["values"]) == 1
+
+
 def test_append_postings_all_duplicates_skips_api_call():
     service = MagicMock()
     service.spreadsheets().values().get().execute.return_value = {

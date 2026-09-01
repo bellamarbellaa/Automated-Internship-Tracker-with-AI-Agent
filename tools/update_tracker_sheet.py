@@ -54,7 +54,15 @@ def _build_row(posting: dict) -> list:
 
 def append_postings(service, spreadsheet_id: str, postings: list[dict]) -> list[dict]:
     existing_urls = get_existing_urls(service, spreadsheet_id)
-    new_postings = [p for p in postings if _normalize_url(p["url"]) not in existing_urls]
+
+    new_postings = []
+    seen_in_batch = set()
+    for p in postings:
+        key = _normalize_url(p["url"])
+        if key in existing_urls or key in seen_in_batch:
+            continue
+        seen_in_batch.add(key)
+        new_postings.append(p)
 
     if not new_postings:
         return []
