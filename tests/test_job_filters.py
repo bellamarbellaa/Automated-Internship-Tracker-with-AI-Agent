@@ -108,17 +108,42 @@ def test_requires_completed_degree_already_graduated_excluded():
     ) is True
 
 
-def test_requires_completed_degree_generic_requirement_not_excluded():
-    # A bare "degree required" is common, generic boilerplate that doesn't
-    # by itself mean the candidate must have already earned it -- this
-    # must NOT be treated as exclusionary, or it would over-block postings
-    # that are otherwise fine for a current student.
+def test_requires_completed_degree_bachelor_mention_with_no_student_qualifier_excluded():
+    # Confirmed against a real posting: McKinsey's "Associate Intern" listing
+    # mentions "a bachelor's degree from a top-tier university" as a
+    # qualification with no "pursuing"/"currently enrolled"/similar language
+    # anywhere else in the text -- reads as requiring an already-completed
+    # degree, unlike the vast majority of internship postings.
     assert requires_completed_degree(
-        "A Bachelor's degree in finance, accounting, or a related field is required."
-    ) is False
+        "The ideal candidate will have a successful track record of academic "
+        "excellence, including a bachelor's degree from a top-tier university."
+    ) is True
 
 
 def test_requires_completed_degree_pursuing_not_excluded():
     assert requires_completed_degree(
         "Currently pursuing a Bachelor's degree with an expected graduation in 2028."
     ) is False
+
+
+def test_requires_completed_degree_penultimate_year_not_excluded():
+    # Real example (JPMorgan Global Corporate Banking Summer Analyst): a
+    # posting explicitly for current students, confirmed as a posting that
+    # SHOULD be included, not excluded.
+    assert requires_completed_degree(
+        "Penultimate year Undergraduate/Master's student with outstanding "
+        "academic achievement seeking a summer internship. Expected "
+        "graduation date of September 2027 through July 2028. If you are "
+        "pursuing a Master's Degree, it must be attained within 2 academic "
+        "years of your receipt of a Bachelor's Degree."
+    ) is False
+
+
+def test_requires_completed_degree_bare_requirement_with_no_qualifier_excluded():
+    # Confirmed direction: "Bachelor's degree ... is required" with no
+    # nearby current-student language is now also treated as exclusionary,
+    # even though it's phrased as a generic requirement rather than an
+    # explicit "already completed" statement.
+    assert requires_completed_degree(
+        "A Bachelor's degree in finance, accounting, or a related field is required."
+    ) is True

@@ -23,12 +23,8 @@ _VISA_EXCLUSION_PATTERNS = [
     re.compile(r"sponsorship[^.]{0,60}is not available"),
 ]
 
-# Deliberately narrow: only explicit "already completed/hold/graduated"
-# phrasing triggers this. A bare "Bachelor's degree required" is NOT
-# included -- that phrasing is extremely common boilerplate on postings
-# that are otherwise fine for a current student (e.g. "a Bachelor's degree
-# in finance is required" said nothing about already holding it), so
-# keying on it alone would over-exclude far more than it correctly blocks.
+# Explicit "already completed/hold/graduated" phrasing is always excluded
+# outright.
 _DEGREE_COMPLETION_EXCLUSION_PHRASES = [
     "must have completed",
     "must hold a completed",
@@ -38,6 +34,38 @@ _DEGREE_COMPLETION_EXCLUSION_PHRASES = [
     "must have already graduated",
     "must have obtained a degree",
     "must already possess a bachelor",
+]
+
+# Compound rule: a posting that mentions a bachelor's/master's degree as a
+# qualification, with no current-student signal anywhere in the text, is
+# also excluded -- confirmed against a real example (McKinsey's "Associate
+# Intern" posting: "a bachelor's degree from a top-tier university" with no
+# "pursuing"/"currently enrolled" language anywhere). Postings that mention
+# a degree AND a current-student qualifier (the large majority -- "pursuing
+# a degree", "expected graduation", "final year", etc.) are correctly left
+# alone by this rule.
+_DEGREE_MENTION_PATTERN = re.compile(r"bachelor'?s?\s+degree|master'?s?\s+degree")
+
+_CURRENT_STUDENT_PHRASES = [
+    "pursuing",
+    "currently enrolled",
+    "in progress",
+    "expected graduation",
+    "currently completing",
+    "current student",
+    "current undergraduate",
+    "undergraduate student",
+    "final year",
+    "penultimate year",
+    "rising junior",
+    "rising senior",
+    "still in school",
+    "approaching graduation",
+    "graduating in",
+    "students and graduates",
+    "students or recent graduates",
+    "recent graduates or",
+    "recent graduates and",
 ]
 
 
@@ -73,4 +101,10 @@ def passes_visa_check(description: str) -> bool:
 
 def requires_completed_degree(description: str) -> bool:
     text = description.lower()
-    return any(phrase in text for phrase in _DEGREE_COMPLETION_EXCLUSION_PHRASES)
+    if any(phrase in text for phrase in _DEGREE_COMPLETION_EXCLUSION_PHRASES):
+        return True
+    if _DEGREE_MENTION_PATTERN.search(text) and not any(
+        phrase in text for phrase in _CURRENT_STUDENT_PHRASES
+    ):
+        return True
+    return False
