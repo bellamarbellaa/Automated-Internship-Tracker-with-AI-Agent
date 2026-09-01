@@ -55,3 +55,31 @@ def test_passes_visa_check_requires_authorization_excluded():
 
 def test_passes_visa_check_silent_included():
     assert passes_visa_check("Join our team as a summer intern") is True
+
+
+def test_passes_visa_check_sponsorship_not_available_excluded():
+    assert passes_visa_check(
+        "Visa sponsorship for work authorization is not available for this "
+        "position now or in the future"
+    ) is False
+
+
+def test_passes_visa_check_legally_authorized_us_excluded():
+    assert passes_visa_check(
+        "Applicants must be legally authorized to work in the United States. "
+        "Visa sponsorship is not available for this position."
+    ) is False
+
+
+def test_passes_visa_check_without_employer_sponsorship_excluded():
+    assert passes_visa_check(
+        "You must be work authorized in the United States on a full-time "
+        "basis without the need for employer sponsorship now or in the future."
+    ) is False
+
+
+def test_passes_visa_check_cannot_offer_employment_excluded():
+    assert passes_visa_check(
+        "We cannot offer employment to F-1 visa holders who require "
+        "employer sponsorship in the future."
+    ) is False

@@ -12,6 +12,15 @@ _VISA_EXCLUSION_PHRASES = [
     "must have valid work authorization",
     "unable to sponsor",
     "cannot sponsor",
+    "legally authorized to work in the united states",
+    "without the need for employer sponsorship",
+    "cannot offer employment to",
+]
+
+# Handles phrasing where "sponsorship" and "is not available" are separated
+# by a few words, e.g. "sponsorship for work authorization is not available".
+_VISA_EXCLUSION_PATTERNS = [
+    re.compile(r"sponsorship[^.]{0,60}is not available"),
 ]
 
 
@@ -38,4 +47,8 @@ def matches_duration(description: str) -> bool:
 
 def passes_visa_check(description: str) -> bool:
     text = description.lower()
-    return not any(phrase in text for phrase in _VISA_EXCLUSION_PHRASES)
+    if any(phrase in text for phrase in _VISA_EXCLUSION_PHRASES):
+        return False
+    if any(pattern.search(text) for pattern in _VISA_EXCLUSION_PATTERNS):
+        return False
+    return True
