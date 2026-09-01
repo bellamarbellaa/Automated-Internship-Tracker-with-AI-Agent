@@ -68,5 +68,41 @@ def test_search_postings_handles_request_failure(monkeypatch):
     result = search_adzuna.search_postings("Data Analyst", countries=["sg"])
 
     assert result["success"] is False
-    assert result["error"] == "timeout"
+    assert "timeout" in result["error"]
     assert result["postings"] == []
+
+
+def test_search_postings_partial_failure_keeps_successful_results(monkeypatch):
+    # A single failed request (e.g. a transient rate limit on one
+    # country/query combination) must not discard postings already
+    # collected from other successful requests -- this is the real
+    # failure mode that caused a live run to silently return zero
+    # Data Analyst postings.
+    fake_result = {
+        "results": [
+            {
+                "title": "Business Analyst Intern",
+                "company": {"display_name": "Acme Corp"},
+                "location": {"display_name": "Singapore"},
+                "redirect_url": "https://example.com/job/1",
+                "created": "2026-08-01T00:00:00Z",
+                "description": "An 8-week internship, Summer 2027 start.",
+            },
+        ]
+    }
+
+    calls = {"count": 0}
+
+    def fake_get(url, params=None, timeout=None):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise search_adzuna.requests.RequestException("rate limited")
+        return FakeResponse(fake_result)
+
+    monkeypatch.setattr(search_adzuna.requests, "get", fake_get)
+
+    result = search_adzuna.search_postings("Business Analyst", countries=["sg", "us"])
+
+    assert result["success"] is True
+    assert "rate limited" in result["error"]
+    assert len(result["postings"]) > 0

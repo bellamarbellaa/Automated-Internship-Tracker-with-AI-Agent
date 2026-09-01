@@ -66,5 +66,40 @@ def test_search_postings_handles_request_failure(monkeypatch):
     result = search_serpapi_jobs.search_postings("Consultant")
 
     assert result["success"] is False
-    assert result["error"] == "rate limited"
+    assert "rate limited" in result["error"]
     assert result["postings"] == []
+
+
+def test_search_postings_partial_failure_keeps_successful_results(monkeypatch):
+    # A single failed query (e.g. a transient rate limit) must not discard
+    # postings already collected from other queries in the same role's
+    # search -- see the matching test/comment in test_search_adzuna.py for
+    # the real failure mode this fixes.
+    fake_result = {
+        "jobs_results": [
+            {
+                "title": "Data Analyst Intern",
+                "company_name": "Fintech Co",
+                "location": "Jakarta, Indonesia",
+                "description": "A 12-week internship, Summer 2027.",
+                "apply_options": [{"link": "https://example.com/apply/1"}],
+                "detected_extensions": {"posted_at": "2026-08-01"},
+            },
+        ]
+    }
+
+    calls = {"count": 0}
+
+    def fake_get(url, params=None, timeout=None):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise search_serpapi_jobs.requests.RequestException("rate limited")
+        return FakeResponse(fake_result)
+
+    monkeypatch.setattr(search_serpapi_jobs.requests, "get", fake_get)
+
+    result = search_serpapi_jobs.search_postings("Data Analyst")
+
+    assert result["success"] is True
+    assert "rate limited" in result["error"]
+    assert len(result["postings"]) > 0
