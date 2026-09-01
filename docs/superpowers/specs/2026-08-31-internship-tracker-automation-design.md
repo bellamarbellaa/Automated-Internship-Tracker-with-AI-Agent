@@ -62,7 +62,9 @@ Each search tool:
 - Calls its respective API.
 - Filters results against the internship requirement and 2027 timing.
 - Returns a normalized list of postings: `title, company, location, url,
-  posted_date, source`.
+  posted_date, source, role, description`. `description` is carried through
+  so the agent's CV-matching step (below) has actual job content to score
+  against, not just the title.
 - On API failure (bad key, rate limit, timeout): logs the error and returns
   an empty list with a failure flag, rather than raising and aborting the
   whole run.
