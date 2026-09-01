@@ -156,6 +156,25 @@ def test_requires_completed_degree_curly_apostrophe_still_matches():
     ) is True
 
 
+def test_requires_completed_degree_fresh_graduate_with_no_qualifier_excluded():
+    # Real example (RedDoorz "Business Strategy Intern"): "Fresh Graduates
+    # in Engineering, Statistic or relevant major" with no student
+    # qualifier anywhere else in the text -- functionally equivalent to
+    # requiring an already-completed degree.
+    assert requires_completed_degree(
+        "Fresh Graduates in Engineering, Statistic or relevant major. "
+        "Eligible for participate in the internship program. Strong "
+        "communication skills. Able to join immediately."
+    ) is True
+
+
+def test_requires_completed_degree_fresh_graduate_with_students_qualifier_not_excluded():
+    assert requires_completed_degree(
+        "This internship is open to students and fresh graduates who are "
+        "passionate about data analysis."
+    ) is False
+
+
 def test_requires_completed_degree_bare_requirement_with_no_qualifier_excluded():
     # Confirmed direction: "Bachelor's degree ... is required" with no
     # nearby current-student language is now also treated as exclusionary,

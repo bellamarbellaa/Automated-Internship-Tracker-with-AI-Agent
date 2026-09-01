@@ -53,7 +53,16 @@ _DEGREE_COMPLETION_EXCLUSION_PHRASES = [
 # descriptions commonly use the curly form, which a plain "'?" would
 # silently fail to match (confirmed against the real McKinsey posting,
 # which uses "bachelor's degree" with a curly apostrophe).
-_DEGREE_MENTION_PATTERN = re.compile(r"bachelor['’]?s?\s+degree|master['’]?s?\s+degree")
+# Also matches "fresh graduate(s)" -- a common Indonesian/SEA job-posting
+# requirement phrase functionally equivalent to requiring an
+# already-completed degree (confirmed against a real posting: RedDoorz's
+# "Business Strategy Intern" required "Fresh Graduates in Engineering,
+# Statistic or relevant major" with no student qualifier anywhere else in
+# the text). The same qualifier check below still protects postings that
+# say "for students and fresh graduates" or similar inclusive phrasing.
+_DEGREE_MENTION_PATTERN = re.compile(
+    r"bachelor['’]?s?\s+degree|master['’]?s?\s+degree|fresh graduate"
+)
 
 _CURRENT_STUDENT_PHRASES = [
     "pursuing",
@@ -63,6 +72,11 @@ _CURRENT_STUDENT_PHRASES = [
     "currently completing",
     "current student",
     "current undergraduate",
+    # Broad on purpose: any mention of "student(s)" anywhere in the text is
+    # a strong enough signal that current students are eligible -- confirmed
+    # this is needed by a real phrasing gap ("open to students and fresh
+    # graduates" wasn't caught by the more specific phrases below).
+    "student",
     "undergraduate student",
     "final year",
     "penultimate year",
