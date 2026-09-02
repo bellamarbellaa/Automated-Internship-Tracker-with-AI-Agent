@@ -3,10 +3,10 @@ Automated Internship Tracker with AI Agent
 An AI-powered internship automation system built with Claude Code to automate the process of discovering, filtering, and tracking internship opportunities.
 
 Features
-Automated retrieval — Built an automated workflow using a Claude Code agent that retrieves and processes internship listings from three job platforms through APIs on a weekly basis over one month.
-CV-based matching — Developed a matching workflow that evaluates opportunities against three tailored CV profiles, allowing internships to be matched based on a multidisciplinary background.
-Custom filtering — Implemented multiple constraints and filtering criteria, including location, industry, role, and other personal preferences, to identify opportunities that are actually relevant.
-Google Sheets & Gmail integration — Connected the workflow to Google Sheets and Gmail to automatically organize and display matched opportunities once a week for easier tracking and review.
+1) Automated retrieval — Built an automated workflow using a Claude Code agent that retrieves and processes internship listings from three job platforms through APIs on a weekly basis over one month.
+2) CV-based matching — Developed a matching workflow that evaluates opportunities against three tailored CV profiles, allowing internships to be matched based on a multidisciplinary background.
+3) Custom filtering — Implemented multiple constraints and filtering criteria, including location, industry, role, and other personal preferences, to identify opportunities that are actually relevant.
+4) Google Sheets & Gmail integration — Connected the workflow to Google Sheets and Gmail to automatically organize and display matched opportunities once a week for easier tracking and review.
 
 How it works
 The agent pulls internship listings from three job platform APIs on a weekly schedule.
